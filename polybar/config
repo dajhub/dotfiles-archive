@@ -23,20 +23,20 @@
 ;------------------------------
 ;Gruvbox theme (Gruvbox Material Dark)
 ;------------------------------
-background = #282828
-background-alt = #444
-foreground = #d4be98
-foreground-alt = #555
-primary = #fe8019
-secondary = #e60053
-alert = #bd2c40
-red = #ea6962
-orange = #e78a4e
-green = #a9b665
-blue = #7daea3
-purple = #d3869b
-aqua = #89b482
-darkgray = #282828
+;background = #282828
+;background-alt = #444
+;foreground = #d4be98
+;foreground-alt = #555
+;primary = #fe8019
+;secondary = #e60053
+;alert = #bd2c40
+;red = #ea6962
+;orange = #e78a4e
+;green = #a9b665
+;blue = #7daea3
+;purple = #d3869b
+;aqua = #89b482
+;darkgray = #282828
 
 ;------------------------------
 ;Nord theme - https://www.nordtheme.com
@@ -55,13 +55,13 @@ darkgray = #282828
 ;------------------------------
 ;OneDark
 ;------------------------------
-;background = #282c34
-;background-alt = #3f444a
-;foreground = #bbc2cf
-;foreground-alt = #A1A1A1
-;primary = #EBCB8B
-;secondary = #EBCB8B
-;alert = #BF616A
+background = #282c34
+background-alt = #3f444a
+foreground = #bbc2cf
+foreground-alt = #abb2bf
+primary = #EBCB8B
+secondary = #EBCB8B
+alert = #BF616A
 
 
 ;------------------------------
@@ -133,7 +133,8 @@ module-margin-left = 1
 module-margin-right = 4
 
 ;font-0 = fixed:pixelsize=10;1
-font-0 = "SF Pro Display:size=10"
+;font-0 = "SF Pro Display:size=10"
+font-0 = "Noto sans regular:size=10"
 font-1 = unifont:fontformat=truetype:size=8:antialias=false;0
 font-2 = siji:pixelsize=10;1
 font-3 = FontAwesome:size=10
@@ -300,9 +301,15 @@ label-song-ellipsis = true
 ;------------------------------
 
 [module/xbacklight]
-type=internal/xbacklight
+;type=internal/xbacklight
+type=internal/backlight
+
+; Use the following command to list available cards:
+; $ ls -1 /sys/class/backlight/
+card = intel_backlight
+
 enable-scroll = true
-ramp-0 = " "
+ramp-0 = " "
 ramp-1 = " "
 ramp-2 = " "
 label = %percentage%%
@@ -314,6 +321,7 @@ format-foreground = ${colors.foreground}
 inherit = module/xbacklight
 type = internal/backlight
 card = intel_backlight
+
 
 ;------------------------------
 ;cpu
@@ -508,17 +516,17 @@ label-full-foreground=${colors.green}
 
 
 ;------------------------------
-;updates
+;updates - set for arch at the moment
 ;------------------------------
 
-[module/checkupdates]
-type = custom/script
-exec = ~/.config/polybar/scripts/checkupdates.sh
-interval = 1000
-label = Updates: %output%
-format-foreground = ${colors.green}
-format-prefix = "     "
-format-prefix-foreground = ${colors.green}
+;[module/checkupdates]
+;type = custom/script
+;exec = ~/.config/polybar/scripts/checkupdates.sh
+;interval = 1000
+;label = Updates: %output%
+;format-foreground = ${colors.green}
+;format-prefix = "     "
+;format-prefix-foreground = ${colors.green}
 
 
 ;------------------------------
@@ -527,56 +535,90 @@ format-prefix-foreground = ${colors.green}
 
 [module/powermenu]
 type = custom/menu
-expand = true
+
+expand-right = true
 
 format-spacing = 1
-;format-underline = #EBCB8B
 
-label-open = "  "
-label-open-font = 4
+label-open = " "
 label-open-foreground = ${colors.foreground}
+label-close = "  cancel"
+label-close-foreground = ${colors.secondary}
+label-separator = |
+label-separator-foreground = ${colors.foreground}
 
-label-close = ""
-label-close-font = 4
-label-close-foreground = #bbc2cf
-
-menu-0-0 = "Power off  "
-menu-0-0-foreground = #bbc2cf
+menu-0-0 = reboot
 menu-0-0-exec = menu-open-1
-
-menu-0-1 = "Reboot  "
-menu-0-1-foreground = #bbc2cf
+menu-0-1 = power off
 menu-0-1-exec = menu-open-2
-
-menu-0-2 = "Log out  "
-menu-0-2-foreground = #bbc2cf
+menu-0-2 = log out
 menu-0-2-exec = menu-open-3
 
-menu-0-3 = " ﰸ "
-menu-0-3-foreground = #bbc2cf
-menu-0-3-font = 4
-
-menu-1-0 = "Power off  "
-menu-1-0-exec = systemctl poweroff
-menu-1-0-foreground = #BF616A
-menu-1-1 = "Cancel "
+menu-1-0 = reboot
+menu-1-0-exec = reboot
 menu-1-1-exec = menu-open-0
-menu-1-1-foreground = #EBCB8B
 
-menu-2-0 = "Reboot  "
-menu-2-0-exec = systemctl reboot
-menu-2-0-foreground = #BF616A
-menu-2-1 = "Cancel"
+menu-2-0 = power off
+menu-2-0-exec = shutdown now
 menu-2-1-exec = menu-open-0
-menu-2-1-foreground = #EBCB8B
 
-menu-3-0 = "Log out  "
-menu-3-0-exec = i3-msg exit
-menu-3-0-foreground = #BF616A
-menu-3-1 = "Cancel"
+menu-3-0 = log out
+menu-3-0-exec = bspc quit &
 menu-3-1-exec = menu-open-0
-menu-3-1-foreground = #EBCB8B
 
+;[module/powermenu]
+;an alternative -- used in Arch
+;type = custom/menu
+;expand = true
+;
+;format-spacing = 1
+;;format-underline = #EBCB8B
+;
+;label-open = "  "
+;label-open-font = 4
+;label-open-foreground = ${colors.foreground}
+;
+;label-close = ""
+;label-close-font = 4
+;label-close-foreground = #bbc2cf
+;
+;menu-0-0 = "Power off  "
+;menu-0-0-foreground = #bbc2cf
+;menu-0-0-exec = menu-open-1
+;
+;menu-0-1 = "Reboot  "
+;menu-0-1-foreground = #bbc2cf
+;menu-0-1-exec = menu-open-2
+;
+;menu-0-2 = "Log out  "
+;menu-0-2-foreground = #bbc2cf
+;menu-0-2-exec = menu-open-3
+;
+;menu-0-3 = " ﰸ "
+;menu-0-3-foreground = #bbc2cf
+;menu-0-3-font = 4
+;
+;menu-1-0 = "Power off  "
+;menu-1-0-exec = systemctl poweroff
+;menu-1-0-foreground = #BF616A
+;menu-1-1 = "Cancel "
+;menu-1-1-exec = menu-open-0
+;menu-1-1-foreground = #EBCB8B
+;
+;menu-2-0 = "Reboot  "
+;menu-2-0-exec = systemctl reboot
+;menu-2-0-foreground = #BF616A
+;menu-2-1 = "Cancel"
+;menu-2-1-exec = menu-open-0
+;menu-2-1-foreground = #EBCB8B
+;
+;menu-3-0 = "Log out  "
+;menu-3-0-exec = i3-msg exit
+;menu-3-0-foreground = #BF616A
+;menu-3-1 = "Cancel"
+;menu-3-1-exec = menu-open-0
+;menu-3-1-foreground = #EBCB8B
+;
 [settings]
 screenchange-reload = true
 ;compositing-background = xor
