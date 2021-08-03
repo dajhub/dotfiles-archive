@@ -23,7 +23,7 @@
 ;------------------------------
 ;Gruvbox theme (Gruvbox Material Dark)
 ;------------------------------
-;background = #282828
+;background = #aa282828
 ;background-alt = #444
 ;foreground = #d4be98
 ;foreground-alt = #555
@@ -41,7 +41,7 @@
 ;------------------------------
 ;Nord theme - https://www.nordtheme.com
 ;------------------------------
-;background = #2e3440
+;background = #aa2e3440
 ;background-alt = #3b4252
 ;;--- foreground is text color - Frost
 ;foreground = #81A1C1
@@ -55,7 +55,7 @@
 ;------------------------------
 ;OneDark
 ;------------------------------
-background = #282c34
+background = #aa282c34
 background-alt = #3f444a
 foreground = #bbc2cf
 foreground-alt = #abb2bf
