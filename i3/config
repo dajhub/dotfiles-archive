@@ -242,11 +242,11 @@ mode "resize" {
 bindsym $mod+9 exec --no-startup-id blurlock
 
 # Autostart applications
-exec_always --no-startup-id $HOME/.config/polybar/launch.sh
+exec_always --no-startup-id $HOME/.config/i3/polybar/launch.sh
 exec --no-startup-id nitrogen --restore
 exec --no-startup-id numlockx off
 exec --no-startup-id nm-applet
-exec --no-startup-id xfce4-power-manager
+# exec --no-startup-id xfce4-power-manager
 # composite manager
 exec --no-startup-id picom
 # exec --no-startup-id xautolock -time 10 -locker blurlock
