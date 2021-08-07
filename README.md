@@ -7,3 +7,6 @@ The following are the dotfiles for a range of window managers and desktop enviro
 3. [BSPWM](https://github.com/dajhub/dotfiles/tree/master/BSPWM)
 
 They are for my personal use but feel free to browse!!
+
+To do:
+- List of software to install
