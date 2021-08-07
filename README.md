@@ -9,4 +9,4 @@ The following are the dotfiles for a range of window managers and desktop enviro
 They are for my personal use but feel free to browse!!
 
 To do:
-- List of software and fonts to install
+- List of software/fonts to install
