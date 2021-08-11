@@ -13,16 +13,19 @@ super + d
 
 # file manager
 super + n
-  nautilus
+  nemo
 
 # browser
 super + b
-	firefox
+	vivaldi-stable
 
 # simplenote
 super + s
 	simplenote
 
+# Text editor
+super + a
+	atom
 
 # make sxhkd reload its configuration files:
 super + Escape
@@ -53,14 +56,14 @@ super + bracket{left,right}
 super + @space
 	rofi -modi drun -show drun -line-padding 2 \
                 -columns 2 -padding 20 -hide-scrollbar -terminal alacritty \
-                -show-icons -drun-icon-theme "Arc-X-D" -font "Noto Sans Regular 11"
+                -show-icons -drun-icon-theme "Arc-X-D" -font "Noto Sans Regular 10.5"
 
 
 # show open window
 super + alt + @space
 	rofi -modi drun -show window -line-padding 2 \
                 -columns 2 -padding 20 -hide-scrollbar -terminal alacritty \
-                -show-icons -drun-icon-theme "Arc-X-D" -font "Noto Sans Regular 11"
+                -show-icons -drun-icon-theme "Arc-X-D" -font "Noto Sans Regular 10.5"
 
 
 ##################################
