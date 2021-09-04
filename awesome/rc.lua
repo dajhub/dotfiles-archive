@@ -552,11 +552,11 @@ globalkeys = mytable.join(
 
     awful.key({ modkey }, "d",
     function ()
-        awful.spawn(string.format("dmenu_run -i -nb '#191919' -nf '#fea63c' -sb '#fea63c' -sf '#191919' -fn NotoSansRegular:pixelsize=14",
+        awful.spawn(string.format("dmenu_run -b -i -nb '#191919' -nf '#c678dd' -sb '#c678dd' -sf '#191919' -fn NotoSansRegular:pixelsize=13",
         beautiful.bg_normal, beautiful.fg_normal, beautiful.bg_focus, beautiful.fg_focus))
 	end,
               {description = "dmenu", group = "launcher"}),
-              
+
     -- Rofi / run a program
     awful.key({ modkey }, "space", function () awful.util.spawn( "rofi -show drun" ) end,
         {description = "Run program with rofi", group = "launcher"}),

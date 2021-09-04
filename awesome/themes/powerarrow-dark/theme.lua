@@ -18,17 +18,17 @@ local theme                                     = {}
 theme.dir                                       = os.getenv("HOME") .. "/.config/awesome/themes/powerarrow-dark"
 theme.wallpaper                                 = theme.dir .. "/wall.jpg"
 theme.font                                      = "Cantarell 9.5"
-theme.fg_normal                                 = "#fbf1c7"
-theme.fg_focus                                  = "#e59c19"
+theme.fg_normal                                 = "#abb2bf"
+theme.fg_focus                                  = "#c678dd"
 theme.fg_urgent                                 = "#CC9393"
-theme.bg_normal                                 = "#282828"
-theme.bg_focus                                  = "#1d2021"
+theme.bg_normal                                 = "#282c34"
+theme.bg_focus                                  = "#4b5263"
 theme.bg_urgent                                 = "#1A1A1A"
 theme.border_width                              = dpi(1)
 theme.border_normal                             = "#3F3F3F"
-theme.border_focus                              = "#98971a"
+theme.border_focus                              = "#98c379"
 theme.border_marked                             = "#CC9393"
-theme.tasklist_bg_focus                         = "#1A1A1A"
+theme.tasklist_bg_focus                         = "#282c34"
 theme.titlebar_bg_focus                         = theme.bg_focus
 theme.titlebar_bg_normal                        = theme.bg_normal
 theme.titlebar_fg_focus                         = theme.fg_focus
@@ -340,12 +340,12 @@ function theme.at_screen_connect(s)
             tempicon,
             temp.widget,
             arrl_ld,
-            
+
             --wibox.container.background(fsicon, theme.bg_focus),
             --wibox.container.background(theme.fs.widget, theme.bg_focus),
             wibox.container.background(baticon, theme.bg_focus),
             wibox.container.background(bat.widget, theme.bg_focus),
-            
+
  --           wibox.container.background(neticon, theme.bg_focus),
  --           wibox.container.background(net.widget, theme.bg_focus),
             arrl_dl,
