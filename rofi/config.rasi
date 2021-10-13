@@ -1,12 +1,2 @@
-configuration {
-	theme: "./flat.rasi";
-	modi: "drun,run";
-	location: 2;
-	fixed-num-lines: false;
-	show-icons: true;
-	icon-theme: "Papirus";
-	display-window: "缾";
-	display-run: "";
-	display-drun: "";
-    display-emoji: "";
-}
+//@theme "/usr/share/rofi/themes/Adapta-Nokto.rasi"
+@theme "/home/david/.config/rofi/themes/mytheme.rasi"

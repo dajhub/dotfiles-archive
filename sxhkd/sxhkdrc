@@ -1,83 +1,64 @@
-##################################
+#
 # wm independent hotkeys
-##################################
+#
 
 # terminal emulator
 super + Return
 	alacritty
 
-# program launcher - at the bottom
+# program launcher
 super + d
-	dmenu_run -b -p "Search " -fn "Noto Sans Regular-10" -nb "#282c34" -nf "#bbc2cf" -sb "#c678dd" -sf "#1d2021"
+#   rofi -show drun -show-icons
+	rofi -show drun
 
+# alt-tab
+alt + Tab
+    rofi -show window -show-icons
 
-# file manager
-super + n
-  nemo
-
-# browser
-super + b
-	vivaldi-stable
-
-# simplenote
-super + s
-	simplenote
-
-# Text editor
-super + a
-	atom
+# thunar
+alt + f
+    thunar
 
 # make sxhkd reload its configuration files:
 super + Escape
 	pkill -USR1 -x sxhkd
 
-# lock the screen with dark background
-super + shift + q
-  i3lock -c 3c3836
+# --- Volume Control ---
+super + F8
+    pactl set-sink-volume @DEFAULT_SINK@ +10%
+super + F7
+    pactl set-sink-volume @DEFAULT_SINK@ -10%
+super + F6
+    pactl set-sink-mute @DEFAULT_SINK@ toggle
 
-# Rotate tree
-super + shift + {p,o}
-    bspc node @/ -C {forward,backward}
-
-# Expand/contract a window by moving one of its side outward/inward
-alt  {Left,Down,Up,Right}
-    STEP=20; SELECTION={1,2,3,4}; \
-    bspc node -z $(echo "left -$STEP 0,bottom 0 $STEP,top 0 -$STEP,right $STEP 0" | cut -d',' -f$SELECTION) || \
-    bspc node -z $(echo "right -$STEP 0,top 0 $STEP,bottom 0 -$STEP,left $STEP 0" | cut -d',' -f$SELECTION)
-
-# focus the next/previous desktop in the current monitor
-super + bracket{left,right}
-	bspc desktop -f {prev,next}.local
-
-##################################
-# rofi launcher
-##################################
-
-super + @space
-	rofi -modi drun -show drun -line-padding 2 \
-                -columns 2 -padding 20 -hide-scrollbar -terminal alacritty \
-                -show-icons -drun-icon-theme "Arc-X-D" -font "Noto Sans Regular 10.5"
+# --- Brightness control ---
+super + F2
+    brightnessctl set 10%-
+super + F3
+    brightnessctl set +10%
 
 
-# show open window
-super + alt + @space
-	rofi -modi drun -show window -line-padding 2 \
-                -columns 2 -padding 20 -hide-scrollbar -terminal alacritty \
-                -show-icons -drun-icon-theme "Arc-X-D" -font "Noto Sans Regular 10.5"
+# Screenshot
+super + n
+    scrot ~/Pictures/Screenshots/%b-%d-20%y_%I:%M%p-%Ss.png -e 'xclip -selection clipboard -t image/png -i $f'
+# Current window screenshot
+super + shift + N
+    scrot -ub ~/Pictures/Screenshots/%b-%d-20%y_%I:%M%p-%Ss.png -e 'xclip -selection clipboard -t image/png -i $f'
 
-
-##################################
+#
 # bspwm hotkeys
-##################################
+#
 
 # quit/restart bspwm
-super + alt + {q,r}
+super + shift + {q,r}
 	bspc {quit,wm -r}
+	
+#super + shift + {p,r}
+#	bspc {quit,wm -r | killall polybar | polybar mybar &}
 
 # close and kill
-# super + {_,shift + }w
-super + w
-	bspc node -{c,k}
+super + {_,shift + }q
+	bspc node -{k,c}
 
 # alternate between the tiled and monocle layout
 super + m
@@ -87,13 +68,13 @@ super + m
 super + y
 	bspc node newest.marked.local -n newest.!automatic.local
 
-# swap the current node and the biggest node
+# swap the current node and the biggest window
 super + g
-	bspc node -s biggest
+	bspc node -s biggest.window
 
-##################################
+#
 # state/flags
-##################################
+#
 
 # set the window state
 super + {t,shift + t,s,f}
@@ -103,9 +84,9 @@ super + {t,shift + t,s,f}
 super + ctrl + {m,x,y,z}
 	bspc node -g {marked,locked,sticky,private}
 
-##################################
+#
 # focus/swap
-##################################
+#
 
 # focus the node in the given direction
 super + {_,shift + }{h,j,k,l}
@@ -115,9 +96,9 @@ super + {_,shift + }{h,j,k,l}
 super + {p,b,comma,period}
 	bspc node -f @{parent,brother,first,second}
 
-# focus the next/previous node in the current desktop
+# focus the next/previous window in the current desktop
 super + {_,shift + }c
-	bspc node -f {next,prev}.local
+	bspc node -f {next,prev}.local.!hidden.window
 
 # focus the next/previous desktop in the current monitor
 super + bracket{left,right}
@@ -137,9 +118,9 @@ super + {o,i}
 super + {_,shift + }{1-9,0}
 	bspc {desktop -f,node -d} '^{1-9,10}'
 
-##################################
-# PRESELECT
-##################################
+#
+# preselect
+#
 
 # preselect the direction
 super + ctrl + {h,j,k,l}
@@ -157,9 +138,9 @@ super + ctrl + space
 super + ctrl + shift + space
 	bspc query -N -d | xargs -I id -n 1 bspc node id -p cancel
 
-##################################
-#MOVE/RESIZE
-##################################
+#
+# move/resize
+#
 
 # expand a window by moving one of its side outward
 super + alt + {h,j,k,l}
@@ -172,3 +153,4 @@ super + alt + shift + {h,j,k,l}
 # move a floating window
 super + {Left,Down,Up,Right}
 	bspc node -v {-20 0,0 20,0 -20,20 0}
+
