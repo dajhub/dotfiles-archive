@@ -29,7 +29,7 @@ def start_once():
 mod = "mod4"
 alt = "mod1"
 mod1 = "control"
-terminal = "alacritty" # original: guess_terminal()
+terminal = "kitty" # original: guess_terminal()
 
 #############################################
 ############### COLORS ######################
@@ -119,7 +119,7 @@ nord = [
   "#A1A1A1", # 13 light-grey
      ]
 
-color = dracula
+color = onedark
 
 
 #############################################
@@ -130,9 +130,9 @@ keys = [
 # Applications    
     Key([mod], "Return", lazy.spawn(terminal), desc="Launch terminal"),
     #Key([alt], "space", lazy.spawn("rofi -combi-modi drun -font 'Noto Sans 11' -show combi")),
-    Key([alt], "b", lazy.spawn("vivaldi-stable")),
+    Key([alt], "b", lazy.spawn("chromium")),
     Key([alt], "n", lazy.spawn("nemo")),
-    Key([alt], "c", lazy.spawn("code")),
+    Key([alt], "c", lazy.spawn("vscodium")),
     Key([alt], "s", lazy.spawn("simplenote")),
     
 # Lock Screen
@@ -149,8 +149,9 @@ keys = [
     #    desc="Launch power menu"),
 
 # Rotate through workspaces
-    Key([mod1], "Tab", lazy.screen.next_group()),
-    Key([mod1, "shift" ], "Tab", lazy.screen.prev_group()),
+#Key([mod1], "." lazy.screen.next_group()),
+#Key([mod1], ",", lazy.screen.prev_group()),
+
 
 
 ##################################################
@@ -266,12 +267,12 @@ layout_theme = {"border_width":1,
 
 layouts = [
     #layout.Columns(border_focus_stack='#d75f5f'),
+    layout.MonadTall(**layout_theme),
     layout.Max(**layout_theme),
     # Try more layouts by unleashing below layouts.
     # layout.Stack(num_stacks=2),
     # layout.Bsp(),
     # layout.Matrix(**layout_theme),
-    layout.MonadTall(**layout_theme),
     # layout.MonadWide(),
     # layout.RatioTile(),
     layout.Tile(**layout_theme),
@@ -313,8 +314,8 @@ screens = [
                 # GroupBox
                 widget.Spacer(10),
                 widget.GroupBox(
-                    fontsize=14,
-                    padding=3,
+                    fontsize=20,
+                    padding=4,
                     block_highlight_text_color=color[6],
                     active=color[11],
                     inactive=color[12],
@@ -398,12 +399,12 @@ screens = [
                     widget.TextBox(
                     text="    ⟳",
                     font="Ubuntu regular",
-                    fontsize=12,
+                    fontsize=18,
                     foreground=color[6]
                 ),
 
-                widget.CheckUpdates(
-                    distro = "Arch_checkupdates",
+               widget.CheckUpdates(
+                    distro = "Arch",
                     display_format = "{updates} Updates",
                     no_update_string = '0 Updates',
                     restart_indicator = 'Checking...',
@@ -412,26 +413,28 @@ screens = [
                     foreground = color[2],
                     colour_have_updates = color[9],
                     colour_no_updates = color[2],
-                    update_interval = 3000
+                    update_interval = 60
                  ),
 
+
                 widget.TextBox(
-                    text="    ",
+                    text="    ",
                     font="Ubuntu regular",
-                    fontsize=12,
+                    fontsize=18,
                     foreground=color[5]
                 ),
                 widget.Memory(
                     font="Ubuntu regular",
                     fontsize=12,
                     foreground=color[2],
-                    format="{MemUsed: } /{MemTotal: } MB"
+                    measure_mem='G',
+                    format='{MemUsed:.2f}/{MemTotal:.2f} G',
                 ),
                 widget.TextBox(
-                    text="    ",
+                    text="    ",
                     font="Ubuntu regular",
-                    fontsize=12,
-                    foreground=color[11]
+                    fontsize=18,
+                    foreground=color[10]
                 ),
                 widget.PulseVolume(
                     font="Ubuntu regular",
@@ -441,9 +444,9 @@ screens = [
                 widget.Battery(
                     font="Ubuntu regular",
                     fontsize=12,
-                    charge_char='     ',
+                    charge_char='     ',
                     discharge_char="     ",
-                    full_char='     ',
+                    full_char='     ',
                     format="{char} {percent:2.0%}",
                     foreground=color[2]
                 ),
@@ -456,7 +459,7 @@ screens = [
                 widget.Clock(
                     font="Ubuntu regular",
                     fontsize=12,
-                    format="%a  %d %b | %H : %M",
+                    format="%a  %d %b  [ %H : %M ]",
                     foreground=color[2]
                 ),
                 widget.Sep(

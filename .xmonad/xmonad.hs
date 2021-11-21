@@ -1,91 +1,287 @@
-import XMonad
-import Data.Monoid
-import System.Exit
-import XMonad.Config.Desktop
-
-import XMonad.Hooks.DynamicLog
-import XMonad.Hooks.ManageDocks
-
-import XMonad.Layout.Gaps
-import XMonad.Layout.Spacing
-import XMonad.Layout.BinarySpacePartition
-import XMonad.Layout.SimplestFloat
-import XMonad.Layout.NoBorders
-
-import XMonad.Actions.FloatSnap
-import XMonad.Actions.FloatKeys
-
-import XMonad.Util.SpawnOnce
-import XMonad.Util.Run
-import XMonad.Util.EZConfig
-
+{-# LANGUAGE PatternSynonyms #-}
+  
+--------------------
+-- XMonad Imports --
+--------------------
+  
+  -- Base
+import XMonad 
+import System.IO (hPutStrLn)
+import System.Exit (exitSuccess)
 import qualified XMonad.StackSet as W
 
-myModMask = mod4Mask
+    -- Actions
+import XMonad.Actions.CopyWindow (kill1)
+import XMonad.Actions.CycleWS (Direction1D(Next, Prev), moveTo, shiftTo, WSType(WSIs), nextScreen, prevScreen)
+import XMonad.Actions.Promote (promote)
+import XMonad.Actions.RotSlaves (rotSlavesDown, rotAllDown)
+import XMonad.Actions.WithAll (killAll)
+import qualified XMonad.Actions.CycleWS as CWS
 
-myBorderWidth = 0
+    -- Data
+import Data.Maybe (fromJust)
+import Data.Monoid (Endo)
+import Data.Maybe (isJust)
+import qualified Data.Map as M
 
-myNormalBorderColor = "#acb0d0"
-myFocusedBorderColor = "#7aa2f7"
+    -- Hooks
+import XMonad.Hooks.DynamicLog (dynamicLogWithPP, wrap, xmobarPP, xmobarColor, shorten, PP(..))
+import XMonad.Hooks.EwmhDesktops (ewmh)  -- for some fullscreen events, also for xcomposite in obs.
+import XMonad.Hooks.ManageDocks (avoidStruts, docksEventHook, manageDocks, ToggleStruts(..))
+import XMonad.Hooks.ManageHelpers (isFullscreen, doFullFloat)
 
-myManageHook = composeAll
-    [ className =? "vlc"        --> doFloat ]
+    -- Layouts
+import XMonad.Layout.ResizableTile (pattern ResizableTall, MirrorResize(MirrorShrink, MirrorExpand))
+import XMonad.Layout.ThreeColumns (pattern ThreeColMid)
 
-myKeys :: [(String, X ())]
-myKeys =
-        [ ("M-<Return>", spawn "kitty")
-        , (("M-r"), spawn "rofi -show drun") -- Launch rofi
-        , ("M-S-<Return>", windows W.swapMaster)
-        , ("M-q", kill)
-        , ("M-S-q", io exitSuccess)
-        , ("M-S-c", spawn "xmonad --recompile")
-        , ("M-S-r", spawn "xmonad --restart")
-        , ("<Print>", spawn "scrot")
-        , ("<XF86MonBrightnessUp>", spawn "xbacklight -inc 5")
-        , ("<XF86MonBrightnessDown>", spawn "xbacklight -dec 5")
-        , ("M-d", withFocused (keysMoveWindowTo (683,384) (0.5,0.5)))
+    -- Layouts modifiers
+import XMonad.Layout.LayoutModifier (ModifiedLayout(..))
+import XMonad.Layout.LimitWindows (limitWindows, increaseLimit, decreaseLimit)
+import XMonad.Layout.MultiToggle (mkToggle, single, EOT(EOT), (??))
+import XMonad.Layout.MultiToggle.Instances (StdTransformers(NBFULL, MIRROR, NOBORDERS))
+import XMonad.Layout.NoBorders (smartBorders, withBorder)
+import XMonad.Layout.Renamed (renamed, pattern Replace)
+import XMonad.Layout.ShowWName (showWName', SWNConfig, swn_font, swn_fade, swn_bgcolor, swn_color)
+import XMonad.Layout.Simplest (pattern Simplest)
+import XMonad.Layout.Spacing (pattern Border, Spacing(..), spacingRaw, decWindowSpacing, incWindowSpacing, decScreenSpacing, incScreenSpacing)
+import XMonad.Layout.SubLayouts (subLayout)
+import XMonad.Layout.WindowArranger (windowArrange, WindowArrangerMsg)
+import XMonad.Layout.WindowNavigation (windowNavigation)
+import qualified XMonad.Layout.ToggleLayouts as T (toggleLayouts, ToggleLayout(Toggle))
 
-        , ("M-M1-<Up>", withFocused (keysMoveWindow (0,-5)))
-        , ("M-M1-<Right>", withFocused (keysMoveWindow (5,0)))
-        , ("M-M1-<Down>", withFocused (keysMoveWindow (0,5)))
-        , ("M-M1-<Left>", withFocused (keysMoveWindow (-5,0)))
+   -- Utilities
+import XMonad.Util.EZConfig (additionalKeys)
+import XMonad.Util.Run (runProcessWithInput, safeSpawn, spawnPipe)
+import XMonad.Util.SpawnOnce (spawnOnce)
 
-        , ("M-S-<Up>", withFocused (keysResizeWindow (0,10) (0.5,0.5)))
-        , ("M-S-<Right>", withFocused (keysResizeWindow (10,0) (0.5,0.5)))
-        , ("M-S-<Down>", withFocused (keysResizeWindow (0,-10) (0.5,0.5)))
-        , ("M-S-<Left>", withFocused (keysResizeWindow (-10,0) (0.5,0.5)))
-        ]
+myModMask :: KeyMask
+myModMask = mod4Mask        -- Sets modkey to super/windows/cmd key
 
+myTerminal :: String
+myTerminal = "kitty"
+
+myBrowser :: String
+myBrowser = "chromium" 
+
+myBorderWidth :: Dimension
+myBorderWidth = 1           -- Border width for windows
+
+myNormColor :: String
+myNormColor = "#4C566A" -- Border color of normal windows
+
+myFocusColor :: String
+myFocusColor = "#A3BE8C" -- Border color of focused windows
+
+----------------------
+-- Startup Commands --
+----------------------
+
+myStartupHook :: X ()
 myStartupHook = do
-    spawnOnce "hsetroot -solid '#7aa2f7' &"
-    spawnOnce "bash ~/pipewire.sh &"
     spawnOnce "picom &"
-    spawnOnce "feh --bg-scale $HOME/Pictures/Wallpapers/blade-runner.jpg"
-    spawnOnce "xbacklight -set 10 &"
-    spawnOnce "xinput --set-prop 'SynPS/2 Synaptics TouchPad' 'libinput Tapping Enabled' 1"
+    spawnOnce "setxkbmap -model pc105 -layout uk"
+    spawnOnce "nitrogen --restore"  -- sets wallpaper
+    --setWMName "LG3D" -- This is apparently required for Java GUI apps. Leaving here for future me just in case
 
-tall =  spacingRaw True (Border 0 0 0 0) True (Border 5 5 5 5) True $ gaps [(U,27), (R,5), (L,5), (D,5)] $ avoidStruts $ Tall 1 (3/100) (50/100)
+-------------
+-- Layouts --
+-------------
 
-bsp =  spacingRaw True (Border 0 0 0 0) True (Border 5 5 5 5) True $ gaps [(U,29), (R,10), (L,10), (D,10)] $ emptyBSP
+--Makes setting the spacingRaw simpler to write. The spacingRaw module adds a configurable amount of space around windows.
+mySpacing :: Integer -> l a -> XMonad.Layout.LayoutModifier.ModifiedLayout Spacing l a
+mySpacing i = spacingRaw False (Border i i i i) True (Border i i i i) True
 
-myLayoutHook = tall ||| noBorders tall |||  bsp ||| noBorders Full ||| simplestFloat
+-- Layouts used
+tall     = renamed [Replace "tall"]
+           $ smartBorders
+           $ windowNavigation
+           $ subLayout [] (smartBorders Simplest)
+           $ limitWindows 12
+           $ mySpacing 4
+           $ ResizableTall 1 (3/100) (1/2) []
+threeCol = renamed [Replace "three col mid"]
+           $ smartBorders
+           $ windowNavigation
+           $ subLayout [] (smartBorders Simplest)
+           $ mySpacing 4
+           $ limitWindows 7
+           $ ThreeColMid 1 (3/100) (1/2)
 
+-- Theme for showWName which prints current workspace when you change workspaces.
+myShowWNameTheme :: SWNConfig
+myShowWNameTheme = def
+    { swn_font              = "xft:Fira:bold:size=60"
+    , swn_fade              = 1.0
+    , swn_bgcolor           = "#4c566a"
+    , swn_color             = "#eceff4"
+    }
+
+-- The layout hook
+myLayoutHook = avoidStruts $ windowArrange $ T.toggleLayouts tall 
+               $ mkToggle (NBFULL ?? NOBORDERS ?? EOT) myDefaultLayout 
+             where
+               myDefaultLayout =  withBorder myBorderWidth tall
+                              ||| withBorder myBorderWidth threeCol
+
+
+myWorkspaces = [ "  1  ", "  2  ", "  3  ", "  4  ", "  5  " ]
+myWorkspaceIndices = M.fromList $ zipWith (,) myWorkspaces [1..] -- (,) == \x y -> (x,y)
+
+clickable ws = "<action=xdotool key super+"++show i++">"++ws++"</action>"
+    where i = fromJust $ M.lookup ws myWorkspaceIndices
+
+
+------------------
+-- Window Rules --
+------------------
+
+myManageHook :: XMonad.Query (Data.Monoid.Endo WindowSet)
+myManageHook = composeAll
+     -- 'doFloat' forces a window to float.  Useful for dialog boxes and such.
+     -- using 'doShift ( myWorkspaces !! 7)' sends program to workspace 8!
+     -- I'm doing it this way because otherwise I would have to write out the full
+     -- name of my workspaces and the names would be very long if using clickable workspaces.
+     [ className =? "confirm"         --> doFloat
+     , className =? "file_progress"   --> doFloat
+     , className =? "dialog"          --> doFloat
+     , className =? "download"        --> doFloat
+     , className =? "error"           --> doFloat
+     , className =? "notification"    --> doFloat
+     , className =? "pinentry-gtk-2"  --> doFloat
+     , className =? "splash"          --> doFloat
+     , className =? "toolbar"         --> doFloat
+     , className =? "gcolor2"         --> doFloat
+     , title =? "Visual Studio Code"  --> doShift ( myWorkspaces !! 0 ) 
+     , title =? "Chromium"     --> doShift ( myWorkspaces !! 1 )
+     , className =? "qutebrowser"     --> doShift ( myWorkspaces !! 1 )
+     , title =? "Signal"              --> doShift ( myWorkspaces !! 3 )
+     , (className =? "firefox" <&&> resource =? "Dialog") --> doFloat  -- Float Firefox Dialog
+     , isFullscreen -->  doFullFloat
+     ]
+
+
+------------------
+-- Key Bindings --
+------------------
+
+-- Key Binding Helpers
+type KeyBinding = ((KeyMask, KeySym), X ())
+
+keyBinding :: KeyMask -> Maybe KeyMask -> KeySym -> X () -> KeyBinding
+keyBinding modifier Nothing keySym command = ((modifier, keySym), command)
+keyBinding modifier (Just other) keySym command = ((modifier .|. other, keySym), command)
+    
+mod' :: KeySym -> X () -> KeyBinding
+mod' = keyBinding myModMask Nothing
+
+mod'' :: KeyMask -> KeySym -> X () -> KeyBinding
+mod'' = keyBinding myModMask . Just
+
+modShift :: KeySym -> X() -> KeyBinding
+modShift = mod'' shiftMask
+
+modControl :: KeySym -> X () -> KeyBinding
+modControl = mod'' controlMask
+
+control :: KeySym -> X () -> KeyBinding
+control = keyBinding controlMask Nothing
+
+control' :: KeyMask -> KeySym -> X () -> KeyBinding
+control' = keyBinding controlMask . Just
+
+myWorkspaceKeySyms :: [(WorkspaceId, KeySym)]
+myWorkspaceKeySyms = zip myWorkspaces [xK_1 ..]
+
+
+
+
+-- When applied with a KeySym and WorkspaceId this shifts the
+-- currently focused window to the provided workspace.
+shiftWindowKeyBinding :: KeySym -> WorkspaceId -> KeyBinding
+shiftWindowKeyBinding keySym id = modControl keySym $ windows $ W.shift id
+
+-- Since myWorkspaceKeySyms has to be in the order of (WorkspaceId, KeySym)
+-- and not (KeySym, WorkspaceId), we flip the args of shiftWindowKeyBinding,
+-- then we uncurry it so we can just apply the tuple directly. Finally we apply
+-- that to map so it can operate on [(WorkspaceId, KeySym)].
+shiftWindowKeyBindings :: [(WorkspaceId, KeySym)] -> [KeyBinding]
+shiftWindowKeyBindings = map $ uncurry $ flip shiftWindowKeyBinding
+
+shiftWindowKeyBindings' :: [KeyBinding]
+shiftWindowKeyBindings' =
+    shiftWindowKeyBindings myWorkspaceKeySyms
+
+myKeys :: [KeyBinding]
+myKeys =
+        -- Xmonad
+        [ modControl xK_r $ spawn "xmonad --recompile" 
+        , modShift xK_r $ spawn "xmonad --restart" 
+        , control' mod1Mask xK_q $ io exitSuccess -- quits Xmonad
+        -- Run Prompt
+        , modShift xK_Return $ spawn "rofi -show run"
+        -- Commonly used programs
+        , mod' xK_Return $ spawn myTerminal
+        , mod' xK_b $ spawn myBrowser
+        -- Kill Windows
+        , modShift xK_c kill1 -- Kills focused window
+        , modShift xK_a killAll -- Kills all windows in workspace
+        -- Workspaces
+        , mod' xK_period nextScreen -- Switch focus to next monitor
+        , mod' xK_comma prevScreen -- Switch focus to previous monitor
+        -- cycling worspaces
+        , mod' xK_p CWS.nextWS
+        , mod' xK_o CWS.prevWS
+        , control' mod1Mask xK_j $ decWindowSpacing 4 -- Decrease window gaps by 4
+        , control' mod1Mask xK_k $ incWindowSpacing 4 -- Increase window gaps by 4
+        , control' mod1Mask xK_h $ decScreenSpacing 4
+        , control' mod1Mask xK_l $ incScreenSpacing 4
+        , mod' xK_m $ windows W.focusMaster -- Shift focus to master
+        , mod' xK_j $ windows W.focusDown -- Toggle focus down (also clockwise in tall)
+        , mod' xK_k $ windows W.focusUp -- Toggle focus up (also counter-clockwise in tall)
+        , modShift xK_m $ windows W.swapMaster
+        , modShift xK_j $ windows W.swapDown
+        , modShift xK_k $ windows W.swapUp
+        , mod' xK_BackSpace promote -- Makes focused window master
+        , modShift xK_Tab rotSlavesDown -- Rotates all windows except master
+        , modControl xK_Tab rotAllDown
+        , control xK_Tab $ sendMessage NextLayout -- Toggles next layout
+        , control xK_h $ sendMessage Shrink
+        , mod' xK_l $ sendMessage Expand
+        , mod'' mod1Mask xK_j $ sendMessage MirrorShrink
+        , mod'' mod1Mask xK_k $ sendMessage MirrorExpand
+        ] 
+        ++ shiftWindowKeyBindings'
+
+
+---------------------------
+-- XMonad Initialization --
+---------------------------
+
+main :: IO ()
 main = do
-    xmproc <- spawnPipe "dbus-launch xmobar -d"
-    xmonad $ docks def {
-                  startupHook        = myStartupHook
-                , modMask            = mod4Mask
-                , borderWidth        = myBorderWidth
-                , normalBorderColor  = myNormalBorderColor
-                , focusedBorderColor = myFocusedBorderColor
-                , layoutHook         = myLayoutHook
-                , manageHook         = myManageHook
-                , logHook            = dynamicLogWithPP $
-                    xmobarPP {
-                              ppOutput = hPutStrLn xmproc
-                             , ppTitle = xmobarColor "#FFFFFF" "" . shorten 100
-                             , ppCurrent = xmobarColor "#7aa2f7" ""
-                             , ppSep = "   "
-                             , ppOrder  = \(ws : l : _ : _ ) -> [ws,l]
-                            }
-                } `additionalKeysP` myKeys
+    -- Launching three instances of xmobar on their monitors.
+    xmproc0 <- spawnPipe "xmobar -x 0 $HOME/.config/xmobar/xmobarrc0"
+    -- the xmonad, ya know...what the WM is named after!
+    xmonad $ ewmh def
+        { manageHook         = myManageHook <+> manageDocks
+        , handleEventHook    = docksEventHook
+        , modMask            = myModMask
+        , terminal           = myTerminal
+        , startupHook        = myStartupHook
+        , layoutHook         = showWName' myShowWNameTheme $ myLayoutHook
+        , workspaces         = myWorkspaces
+        , borderWidth        = myBorderWidth
+        , normalBorderColor  = myNormColor
+        , focusedBorderColor = myFocusColor
+        , logHook = dynamicLogWithPP $ xmobarPP
+              { ppOutput = \x -> hPutStrLn xmproc0 x
+              , ppCurrent = xmobarColor "#A3BE8C" "" . wrap "[" "]"                   -- Current workspace
+              , ppVisible = xmobarColor "#A3BE8C" "" . clickable        -- Visible but not current workspace
+              , ppHidden = xmobarColor "#A3BE8C" "" .clickable          -- Hidden workspaces
+              , ppHiddenNoWindows = xmobarColor "#B48EAD" "" .clickable -- Hidden workspaces (no windows)
+              , ppTitle = xmobarColor "#D8DEE9" "" . shorten 60         -- Title of active window
+              , ppSep =  "<fc=#4C566A> <fn=1>|</fn> </fc>"              -- Separator character
+              , ppUrgent = xmobarColor "#BF616A" "" . wrap "!" "!"      -- Urgent workspace
+              , ppOrder  = \(ws:l:t:_) -> [ws, l, t]                    -- order of things in xmobar
+              }
+        } `additionalKeys` myKeys
