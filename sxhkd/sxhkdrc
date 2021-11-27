@@ -4,7 +4,7 @@
 
 # terminal emulator
 super + Return
-	alacritty
+	kitty
 
 # program launcher
 super + d
@@ -15,9 +15,9 @@ super + d
 alt + Tab
     rofi -show window -show-icons
 
-# thunar
+# nemo
 alt + f
-    thunar
+    nemo
 
 # make sxhkd reload its configuration files:
 super + Escape

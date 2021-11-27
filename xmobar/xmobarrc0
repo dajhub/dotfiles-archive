@@ -1,0 +1,45 @@
+Config { font = "xft:JetBrainsMono Nerd Font:weight=regular:pixelsize=12:antialias=true:hinting=true, Symbols Nerd Font:pixelsize=12"
+       , additionalFonts = [
+                       "xft:Mononoki:pixelsize=11:antialias=true:hinting=true"
+                     , "xft:Font Awesome 5 Free Solid:pixelsize=12"
+                     , "xft:Font Awesome 5 Brands:pixelsize=12"
+
+       ]
+       , borderColor = "#88c0d0"
+       --, border = BottomB
+       , bgColor = "#2e3440"
+       , fgColor = "#d8dee9"
+       , alpha = 255
+       , position = Static {xpos = 0, ypos = 0, width = 1366, height = 24}
+       , textOffset = -1
+       , iconOffset = -1
+       , lowerOnStart = False
+       , pickBroadest = False
+       , persistent = True
+       , hideOnStart = False
+       , iconRoot = "."
+       , allDesktops = True
+       , overrideRedirect = True
+       , commands = [
+                      Run Com "uname" ["-r"] "" -1
+                    , Run Date "<fc=#a3be8c> <fc=#4C566A> <fn=1>|</fn> </fc>   %a %_d %b </fc><fc=#a3be8c>[%H:%M]</fc>" "date"  10
+                    , Run Com "bash" ["/home/david/.config/xmobar/scripts/brightness.sh"]   "brightness"    10
+                    , Run Com "bash" ["/home/david/.config/xmobar/scripts/battery.sh"]       "battery"       100
+                    , Run Com "bash" ["/home/david/.config/xmobar/scripts/volume.sh"]        "volume"        10 
+                    --, Run Com "bash" ["/home/david/.config/xmobar/scripts/check-updates.sh"] "check-updates" 1800
+                    -- Echos a "bell" icon in front of the pacman updates.
+                    , Run Com "echo" ["<fn=2>\xf0f3</fn>"] "bell" 1800
+                    -- Check for pacman updates (script found in .local/bin)
+                    , Run Com ".local/bin/pacupdate" [] "pacupdate" 1800
+       	      , Run UnsafeStdinReader
+                    ]
+       , sepChar = "%"
+       , alignSep = "}{"
+       , template = " %UnsafeStdinReader%}{\
+                     \<fc=#c678dd>%bell%  <action=`kitty -e yay -Syu`>%pacupdate%</action></fc>\
+                     --\<fc=#C678DD> %pacupdate%</fc>\
+                     \<fc=#a3be8c> <fc=#4C566A> <fn=1>|</fn> </fc> %volume% </fc>\
+                     \<fc=#81a1c1> <fc=#4C566A> <fn=1>|</fn> </fc> %battery%</fc>\
+                     \<fc=#ebcb8b> <fc=#4C566A> <fn=1>|</fn> </fc>  %brightness%</fc>\
+                     \%date% "
+       }
